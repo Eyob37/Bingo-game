@@ -109,7 +109,7 @@ onValue(ref(database, "BingoGame/players"), (snapshot) => {
 
 function MakeReady() {
   try {
-        const snapshot = await get(ref(database, "BingoGame/Ready"));
+        const snapshot = get(ref(database, "BingoGame/Ready"));
         const data = snapshot.val();
         let readyPlayer = player == "p1"? "player1":"player2";
 
