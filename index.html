@@ -27,6 +27,36 @@
     <table border="1"></table>
     <script>
 
+if ('serviceWorker' in navigator) {
+   navigator.serviceWorker.register('sw.js').then(registration => {
+      console.log("Service Worker registered");
+      window.swRegistration = registration;
+   }).catch(err => {
+      alert("Service Worker registration failed: " + err);
+   });
+} else {
+   alert("Service Workers are not supported in this browser.");
+}
+
+
+function showNotification(Uname, messag) {           
+   if (!window.swRegistration) {
+      alert("Service Worker not ready.");
+      return;
+   }
+
+   try {
+      window.swRegistration.showNotification(Uname, {
+         body: messag
+      });
+   } catch (error) {
+      alert("Failed to show notification: " + error.message);
+   }
+}
+
+
+
+
 const table = document.querySelector("table");
 let counter = 1;
 
