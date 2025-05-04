@@ -107,7 +107,7 @@ onValue(ref(database, "BingoGame/players"), (snapshot) => {
     }    
 });
 
-function MakeReady() {
+async function MakeReady() {
   try {
         const snapshot = await get(ref(database, "BingoGame/Ready"));
         const data = snapshot.val();
