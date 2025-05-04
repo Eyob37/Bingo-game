@@ -122,7 +122,7 @@ function MakeReady() {
 
 onValue(ref(database, "BingoGame/Ready"), (snapshot) => {
     const data = snapshot.val();
-    if (data.player2 && data.player1) {
+    if (data && data.player2 && data.player1) {
         alert("every one is ready you can start");
         showNotification("bingo game", "every one is ready you can start");
         isGameStarted = true;
