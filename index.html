@@ -66,7 +66,10 @@ function prepareTable() {
           td.addEventListener("click", () => {
              if(td.innerHTML != "") return;
               td.textContent = counter;             
-              if(counter >= 25) alert("the game is started");
+              if(counter >= 25){
+                alert("the game is started");
+                showNotification("bingo game", "the game is started");
+              }
               counter++
           });
        }
