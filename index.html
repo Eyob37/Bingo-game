@@ -27,11 +27,7 @@
     <table border="1"></table>
     <script>
    
-  Notification.requestPermission().then(permission => {
-    if (permission === "granted") {
-      showNotification("bingo game", "hello");
-    }
-  });
+  Notification.requestPermission();
 
 
 if ("serviceWorker" in navigator) {
