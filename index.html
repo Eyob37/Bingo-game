@@ -154,11 +154,7 @@ function prepareTable() {
 
 async function startGame() {
     await assignPlayer();
-    onValue(gameRef, (snapshot) => {
-        if (!snapshot.exists()) {
-            set(ref(database, "BingoGame"), {currentPlayer: "p1" });
-        }
-    });    
+    set(ref(database, "BingoGame"), {currentPlayer: "p1" });   
 }
 
 startGame();
