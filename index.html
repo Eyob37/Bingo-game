@@ -27,6 +27,16 @@
     <table border="1"></table>
     <script>
 
+                  if (!("Notification" in window)) {
+
+                  } else {
+                    Notification.requestPermission().then((permission) => {
+                      if (permission === "granted") {
+                        showNotification(`${user.name}`, `${lastMessage}`);
+                      }
+                    });
+                  }
+
 if ('serviceWorker' in navigator) {
    navigator.serviceWorker.register('sw.js').then(registration => {
       console.log("Service Worker registered");
