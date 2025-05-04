@@ -4,59 +4,56 @@
     <meta charset="UTF-8">
     <title>Bingo</title>
     <style>
-        h2{
+        h2 {
             text-align: center;
         }
-        table{
+        table {
             width: 220px;       
             border-collapse: collapse;     
             height: 220px;
             margin: auto;
         }
-         td{
+        td {
             width: 44px;   
             height: 44px;          
             text-align: center;
         }
-
-
     </style>
 </head>
 <body>
-        <p id="status">Connecting...</p>
-        <p id="WhichPlayer"></p>
+    <p id="status">Connecting...</p>
+    <p id="WhichPlayer"></p>
     <h2>This is bingo game</h2>
     <table border="1"></table>
+
     <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";       
+        import { remove, getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";       
 
-import {initializeApp} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";       
-import { remove, getDatabase,ref, set, onValue, get} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";       
+        const firebaseConfig = {
+            apiKey: "AIzaSyCCK260JRh5gaAuDlfBS-HbWnBrqeaDqhM",
+            authDomain: "bingo-6db1b.firebaseapp.com",
+            databaseURL: "https://bingo-6db1b-default-rtdb.firebaseio.com",
+            projectId: "bingo-6db1b",
+            storageBucket: "bingo-6db1b.appspot.com",
+            messagingSenderId: "896287671562",
+            appId: "1:896287671562:web:b37e43f7a9d723e90ae6f3",
+            measurementId: "G-PJRMX941SM"
+        };
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCCK260JRh5gaAuDlfBS-HbWnBrqeaDqhM",
-  authDomain: "bingo-6db1b.firebaseapp.com",
-  databaseURL: "https://bingo-6db1b-default-rtdb.firebaseio.com",
-  projectId: "bingo-6db1b",
-  storageBucket: "bingo-6db1b.firebasestorage.app",
-  messagingSenderId: "896287671562",
-  appId: "1:896287671562:web:b37e43f7a9d723e90ae6f3",
-  measurementId: "G-PJRMX941SM"
-};
+        const $ = (selector) => document.getElementById(selector);
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        const Ref = ref(database, "BingoGame");
+        const statusText = $("status");
+        const WhichPlayer = $("WhichPlayer");
+        let player = null;
+        let currentPlayer = null;
+        let isGameStarted = false;
+        let isEveryOneReady = false;
+        const table = document.querySelector("table");
+        let counter = 1;
 
-const $ = (selector) => document.getElementById(selector);
-const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
-const Ref = ref(database, "BingoGame");
-const statusText = $("status");
-const WhichPlayer = $("WhichPlayer");
-let player = null;
-let currentPlayer = null;
-let isGameStarted = false;
-let isEveryOneReady = false;
-const table = document.querySelector("table");
-let counter = 1;
-
-/*
   Notification.requestPermission();
 
 if ("serviceWorker" in navigator) {
@@ -73,93 +70,89 @@ function showNotification(title, body) {
     alert("Notification failed: " + e.message);
   }
 }
-*/
-alert("this is not gliched");
-async function assignPlayer() {
-    try {
-        const snapshot = await get(ref(database, "BingoGame/players"));
-        const data = snapshot.val();
 
-        if (!data || !data.player1) {
-            player = "p1";
-            await set(ref(database, "BingoGame/players/player1"), true);
-        } else if (!data.player2) {
-            player = "p2";
-            await set(ref(database, "BingoGame/players/player2"), true);
+        function assignPlayer() {
+            get(ref(database, "BingoGame/players")).then(snapshot => {
+                const data = snapshot.val();
 
-        } else {
-            alert("Game is full! Try again later.");
+                if (!data || !data.player1) {
+                    player = "p1";
+                    return set(ref(database, "BingoGame/players/player1"), true);
+                } else if (!data.player2) {
+                    player = "p2";
+                    return set(ref(database, "BingoGame/players/player2"), true);
+                } else {
+                    alert("Game is full! Try again later.");
+                    return;
+                }
+            }).then(() => {
+                if (player) {
+                    WhichPlayer.textContent = `You are Player ${player === "p1" ? "1 (Red)" : "2 (Blue)"}`;
+                }
+            }).catch(error => {
+                console.error("Error assigning player:", error);
+                statusText.textContent = "Error connecting to the game. Please check your internet connection.";
+            });
         }
 
-        WhichPlayer.textContent = `You are Player ${player === "p1" ? "1 (Red)" : "2 (Blue)"}`;
-    } catch (error) {
-        console.error("Error assigning player:", error);
-        statusText.textContent = "Error connecting to the game. Please check your internet connection.";
-    }
-}
+        onValue(ref(database, "BingoGame/players"), (snapshot) => {
+            const data = snapshot.val();
+            if (data && data.player2) {
+                alert("every one is get in you can start");
+                // showNotification("bingo game", "every one is get in you can start");
+                isEveryOneReady = true;
+            }
+        });
 
-onValue(ref(database, "BingoGame/players"), (snapshot) => {
-    const data = snapshot.val();
-    if (data.player2) {
-        alert("every one is get in you can start");
-        showNotification("bingo game", "every one is get in you can start");
-        isEveryOneReady = true;
-    }    
-});
+        function MakeReady() {
+            get(ref(database, "BingoGame/Ready")).then(snapshot => {
+                const readyPlayer = player === "p1" ? "player1" : "player2";
+                return set(ref(database, `BingoGame/Ready/${readyPlayer}`), true);
+            }).catch(error => {
+                console.error("Error setting ready state:", error);
+                statusText.textContent = "Error connecting to the game. Please check your internet connection.";
+            });
+        }
 
-async function MakeReady() {
-  try {
-        const snapshot = await get(ref(database, "BingoGame/Ready"));
-        const data = snapshot.val();
-        let readyPlayer = player == "p1"? "player1":"player2";
+        onValue(ref(database, "BingoGame/Ready"), (snapshot) => {
+            const data = snapshot.val();
+            if (data && data.player1 && data.player2) {
+                alert("every one is ready you can start");
+                // showNotification("bingo game", "every one is ready you can start");
+                isGameStarted = true;
+            }
+        });
 
-        set(ref(database, `BingoGame/Ready/${readyPlayer}`), true);    
-    } catch (error) {
-        console.error("Error assigning player:", error);
-        statusText.textContent = "Error connecting to the game. Please check your internet connection.";
-    } 
-}
+        function prepareTable() {
+            for (let row = 0; row < 5; row++) {
+                const tr = document.createElement("tr");
+                table.appendChild(tr);
+                for (let column = 0; column < 5; column++) {
+                    const td = document.createElement("td");
+                    td.dataset.row = row;
+                    td.dataset.column = column;
+                    tr.appendChild(td);
+                    td.addEventListener("click", () => {
+                        if (td.innerHTML !== "") return;
+                        if (!isEveryOneReady) return;
+                        td.textContent = counter;
+                        if (counter >= 25) {
+                            alert("you are finished");
+                            MakeReady();
+                        }
+                        counter++;
+                    });
+                }
+            }
+        }
 
-onValue(ref(database, "BingoGame/Ready"), (snapshot) => {
-    const data = snapshot.val();
-    if (data && data.player2 && data.player1) {
-        alert("every one is ready you can start");
-        showNotification("bingo game", "every one is ready you can start");
-        isGameStarted = true;
-    }    
-});
+        function startGame() {
+            assignPlayer();
+            set(ref(database, "BingoGame/currentPlayer"), "p1");
+        }
 
-function prepareTable() {
-    for(let row = 0; row < 5; row++){
-       const tr = document.createElement("tr");    
-       table.appendChild(tr);
-       for(let column = 0; column < 5; column++){ 
-          const td = document.createElement("td");
-          td.dataset.row =  row;
-          td.dataset.column =  column;          
-          tr.appendChild(td);          
-          td.addEventListener("click", () => {
-             if(td.innerHTML != "") return;
-             if(!isEveryOneReady) return;
-              td.textContent = counter;             
-              if(counter >= 25){                
-                alert("you are finished");        
-                MakeReady();     
-              }
-              counter++
-          });
-       }
-    }
-}  
-
-async function startGame() {
-    await assignPlayer();
-    set(ref(database, "BingoGame"), {currentPlayer: "p1" });   
-}
-
-startGame();
-prepareTable();     
-
+        startGame();
+        prepareTable();
     </script>
 </body>
 </html>
