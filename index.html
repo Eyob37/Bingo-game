@@ -56,7 +56,7 @@ let isEveryOneReady = false;
 const table = document.querySelector("table");
 let counter = 1;
 
-
+/*
   Notification.requestPermission();
 
 if ("serviceWorker" in navigator) {
@@ -73,8 +73,8 @@ function showNotification(title, body) {
     alert("Notification failed: " + e.message);
   }
 }
-/*
-
+*/
+alert("this is not gliched");
 async function assignPlayer() {
     try {
         const snapshot = get(ref(database, "BingoGame/players"));
@@ -163,7 +163,7 @@ async function startGame() {
 
 startGame();
 prepareTable();     
-*/  
+
     </script>
 </body>
 </html>
