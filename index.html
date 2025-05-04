@@ -26,44 +26,28 @@
     <h2>This is bingo game</h2>
     <table border="1"></table>
     <script>
+   
+  Notification.requestPermission().then(permission => {
+    if (permission === "granted") {
+      showNotification("bingo game", "hello");
+    }
+  });
 
-                  if (!("Notification" in window)) {
 
-                  } else {
-                    Notification.requestPermission().then((permission) => {
-                      if (permission === "granted") {
-                        showNotification(`${user.name}`, `${lastMessage}`);
-                      }
-                    });
-                  }
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js")
+    .then(reg => window.swRegistration = reg)
+    .catch(err => alert("SW registration failed: " + err));
+} 
 
-if ('serviceWorker' in navigator) {
-   navigator.serviceWorker.register('sw.js').then(registration => {
-      console.log("Service Worker registered");
-      window.swRegistration = registration;
-   }).catch(err => {
-      alert("Service Worker registration failed: " + err);
-   });
-} else {
-   alert("Service Workers are not supported in this browser.");
+function showNotification(title, body) {
+  if (!window.swRegistration) return alert("SW not ready.");
+  try {
+    window.swRegistration.showNotification(title, { body });
+  } catch (e) {
+    alert("Notification failed: " + e.message);
+  }
 }
-
-
-function showNotification(Uname, messag) {           
-   if (!window.swRegistration) {
-      alert("Service Worker not ready.");
-      return;
-   }
-
-   try {
-      window.swRegistration.showNotification(Uname, {
-         body: messag
-      });
-   } catch (error) {
-      alert("Failed to show notification: " + error.message);
-   }
-}
-
 
 
 
