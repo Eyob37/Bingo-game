@@ -45,8 +45,8 @@ const firebaseConfig = {
 
 const $ = (selector) => document.getElementById(selector);
 const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const Ref = ref(db, "BingoGame");
+const database = getDatabase(app);
+const Ref = ref(database, "BingoGame");
 const statusText = $("status");
 const WhichPlayer = $("WhichPlayer");
 let player = null;
